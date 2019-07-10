@@ -1,18 +1,18 @@
 <?php
 class WPMT_Admin
 {
-    public $group_api;
+    public $api;
+    public $valid;
 
     public function __construct()
     {
-        
+        $this->api = new mtAPI(self::get_option('api_user'), self::get_option('api_key'));
     }
     
     public function enqueue_scripts()
     {
         wp_enqueue_style('wpmt-select2', WPMT_URL.'assets/admin/css/select2.min.css', array(), '4.0.3', $media = 'all');
-        wp_enqueue_style('wpmt-admin-style', WPMT_URL.'assets/admin/css/wpmt_admin.css', array(), WP_Minitron::get_version(), $media = 'all');
-
+        
         wp_enqueue_script('wpmt-select2', WPMT_URL.'assets/admin/js/select2.min.js', array('jquery'), '4.0.3', true);
         wp_enqueue_script('wpmt-admin-js', WPMT_URL.'assets/admin/js/wpmt_admin.js', array('jquery'), WP_Minitron::get_version(), true);
         wp_localize_script('wpmt-admin-js', 'wpmt_ajax', array(
@@ -33,7 +33,7 @@ class WPMT_Admin
             'manage_options',
             'wpmt',
             array($this, 'main_menu'),
-            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAMAAADTRh9nAAABEVBMVEUAAAAAn1AApUsAnFIAm00AoFAAoVQAoFQAoFMAo1MAoVQAoVMAoFQAoFQAoVQAoFQAoFMAoVQAoVMAoVQAoFIAoFMAoVMAoVQBoFICoFMDoVQEoVQIoVUIolcIo1gKo1gMo1gQpFoSpFkUpl4Wpl8XqGEZpl8Zp18Zp2AaqGIbqGIcqGIdqWMfqWQfqmUkrGgorWssrm0ysXI2snM4s3VIuYBJuYFKuYFPu4RVu4Vdv4xfwI5fwY9hwI5hwZBlxJRpxZZqxZdtxZVvxpiEzaaIzqiL0auQ0q6R07CY1raq3cGs3sSv3sSz4Mi44szI6NbL6tnN6trb8OTe8ebg8unh8unn9e3r9vD3/Pn6/fv7/fzb8Z5rAAAAFHRSTlMAEBEfISNPYWZmanLl6Ozw+Pn7/Kl/NtMAAACXSURBVBjTY2Dg5BNGBTxsDEwC4uiAl4EFSBoqi+qLIgSFQYKi3vYaIQqieqJoglKWEs5BVrLy1o5aCEG1CCWvMDdFPx/3UBUkQRmzABGdSFeXYBs0Qe0oJztbTbigeoSMSbiHrm+gp78BRFDMSFXSVFTU3EZO2sLBWBQiiA74sQgKcgEFhblZUQAjAwOLEAcDBmBmxxQDAOB8II05mE7DAAAAAElFTkSuQmCC',
+            '',
             76
         );
 
@@ -55,12 +55,31 @@ class WPMT_Admin
             ?>
             <h2 class="nav-tab-wrapper" style="margin-bottom: 10px">
                 <a href="?page=wpmt&tab=general" class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>"><?php _e('General Settings', 'wpmt') ?></a>
+                <a href="?page=wpmt&tab=cron" class="nav-tab <?php echo $active_tab == 'cron' ? 'nav-tab-active' : ''; ?>"><?php _e('Cron Settings', 'wpmt') ?></a>
+                <a href="?page=wpmt&tab=manually" class="nav-tab <?php echo $active_tab == 'manually' ? 'nav-tab-active' : ''; ?>"><?php _e('Manually', 'wpmt') ?></a>
+                <a href="?page=wpmt&tab=logs" class="nav-tab <?php echo $active_tab == 'logs' ? 'nav-tab-active' : ''; ?>"><?php _e('Logs', 'wpmt') ?></a>
             </h2>
             <form method="post" action="options.php">
                 <?php
                     settings_fields('wpmt_group');
-                    do_settings_sections('wpmt_general_page');
-                    submit_button();
+                    
+                    switch ($active_tab)
+                    {
+                        case 'general':
+                            do_settings_sections('wpmt_general_page');
+                            submit_button();
+                        break;
+                        case 'cron':
+                            do_settings_sections('wpmt_cron_page');
+                        break;
+                        case 'manually':
+                            do_settings_sections('wpmt_manually_page');
+                            echo '<button type="button" id="start-manually" class="button button-primary">Start manually</button>';
+                        break;
+                        case 'logs':
+                            do_settings_sections('wpmt_logs_page');
+                        break;
+                    }
                 ?>
             </form>
         <?php
@@ -83,6 +102,30 @@ class WPMT_Admin
             'wpmt_general_page'
         );
         
+        // Cron Section
+        add_settings_section(
+            'wpmt_cron',
+            __('Cron Settings', 'wpmt'),
+            null,
+            'wpmt_cron_page'
+        );
+        
+        // Cron Section
+        add_settings_section(
+            'wpmt_manually',
+            __('Manually', 'wpmt'),
+            null,
+            'wpmt_manually_page'
+        );
+        
+        // Logs Section
+        add_settings_section(
+            'wpmt_logs',
+            __('Logs', 'wpmt'),
+            null,
+            'wpmt_logs_page'
+        );
+        
         // Settings fields
         add_settings_field(
             'wpmt_api_user', // ID
@@ -103,7 +146,7 @@ class WPMT_Admin
         
         add_settings_field(
             'wpmt_reg_group', // ID
-            __('Register Users Groups', 'wpmt'), // Title
+            __('Partners lists', 'wpmt'), // Title
             array($this, 'register_group_callback'), // Callback
             'wpmt_general_page', // Page
             'wpmt_general' // Section
@@ -128,16 +171,15 @@ class WPMT_Admin
 
     public function register_group_callback()
     {
-        $api_key = self::get_option('api_key');
-        if (1 > 2) {
-        //if( isset($api_key) && !empty($api_key) ) {
-	        $all_groups = $this->group_api->get();
+        if (self::get_option('api_user') && self::get_option('api_key')) {
+	        $all_groups = $this->api->get_partners_cats();
 	        if ($all_groups) {
 		        echo '<select name="wpmt_options[register_groups][]" id="register_groups" multiple="multiple" class="wpmt_select2">';
 		        echo '<option value="" >'.__('Select groups', 'wpmt').'</option>';
 		        foreach ($all_groups as $group) {
-			        $selected = (in_array($group->id, self::get_option('register_groups'))) ? ' selected="selected"' : '';
-			        echo '<option value="'.$group->id.'" '.$selected.'>'.$group->name.' ( '.$group->total.' '.__('User', 'wpmt').')</option>';
+                    echo $group['id'];
+			        $selected = (in_array($group['id'], self::get_option('register_groups'))) ? ' selected="selected"' : '';
+			        echo '<option value="'.$group['id'].'" '.$selected.'>'.$group['cat_title'].' ( '.$group->total.' '.__('User', 'wpmt').')</option>';
 		        }
 		        echo '</select>';
 	        }

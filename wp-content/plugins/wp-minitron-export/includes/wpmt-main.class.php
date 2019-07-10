@@ -20,6 +20,7 @@ class WP_Minitron
         require_once WPMT_PATH.'includes/wpmt-admin.class.php';
         require_once WPMT_PATH.'includes/wpmt-public.class.php';
         require_once WPMT_PATH.'includes/wpmt-actions.class.php';
+        require_once WPMT_PATH.'includes/vendor/minitron.api.php';
     }
 
     private function set_locale()
