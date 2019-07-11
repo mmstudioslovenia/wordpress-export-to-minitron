@@ -128,6 +128,14 @@ class WPMT_Admin
             'wpmt_logs_page'
         );
         
+        add_settings_field(
+            'wpmt_api_demo', // ID
+            __('Demo', 'wpmt'), // Title
+            array($this, 'api_demo_callback'), // Callback
+            'wpmt_general_page', // Page
+            'wpmt_general' // Section
+        );
+        
         // Settings fields
         add_settings_field(
             'wpmt_api_user', // ID
@@ -189,6 +197,22 @@ class WPMT_Admin
             echo '<span class="status negative">NOT CONNECTED</span>';
         }
     }
+    
+    public function api_demo_callback()
+    {
+        $api_demo = self::get_option('api_demo');
+        
+        echo '<fieldset>';
+        
+        $checked = ($api_demo == 1) ? 'checked="checked"' : '';
+        echo '<label><input type="radio" name="wpmt_options[api_demo]" value="1" '. $checked .'> <span class="">Yes</span></label>';
+        
+        echo '<span class="lb-space"></span>';
+        
+        $checked = ($api_demo == 0) ? 'checked="checked"' : '';
+        echo '<label><input type="radio" name="wpmt_options[api_demo]" value="0" '. $checked .'> <span class="">No</span></label>';
+        echo '</fieldset>';
+    }
 
     public function register_group_callback()
     {
@@ -214,12 +238,16 @@ class WPMT_Admin
         $options = get_option('wpmt_options');
         $api_user = (isset($options['api_user']) && !empty($options['api_user'])) ? $options['api_user'] : '';
         $api_key = (isset($options['api_key']) && !empty($options['api_key'])) ? $options['api_key'] : '';
+        $api_demo = (isset($options['api_demo'])) ? $options['api_demo'] : 0;
         $register_groups = (isset($options['register_groups']) && !empty($options['register_groups'])) ? $options['register_groups'] : array();
 
         switch ($option_name) {
             case 'api_key':
                 return $api_key;
                 break;
+            case 'api_demo':
+                return $api_demo;
+            break;    
             case 'api_user':
                 return $api_user;
             break;    

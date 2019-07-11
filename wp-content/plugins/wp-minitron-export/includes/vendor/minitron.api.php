@@ -6,11 +6,15 @@ class WPMT_API {
     const LIVE_URL = 'https://secure.minitron-apps.si/api/';
     
     public $is_connected;
+    public $is_demo;
     
     public function __construct($api_user, $api_hash)
     {
         $api = $this->mt_api_call('init', array('api_user' => $api_user, 'api_hash' => $api_hash));
         $this->is_connected = $api['data']['ok'];
+        
+        require_once WPMT_PATH.'includes/wpmt-admin.class.php';
+        $this->is_demo = WPMT_Admin::get_option('api_demo');
 	}
     
     public function is_connected()
@@ -21,7 +25,7 @@ class WPMT_API {
     public function mt_api_call($action = "", $params = array(), $type = '')
 	{	
         //api url
-    	$api_url = self::DEV_URL;
+        $api_url = (!$this->is_demo) ? self::DEV_URL : self::LIVE_URL;
     	
     	//session
     	$api_sess = &$_SESSION['mt_api_sess'];

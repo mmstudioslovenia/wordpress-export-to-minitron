@@ -51,3 +51,8 @@
 {
     color: #FFF;
 }
+span.lb-space
+{
+    display: inline-block;
+    width: 21px;    
+}
