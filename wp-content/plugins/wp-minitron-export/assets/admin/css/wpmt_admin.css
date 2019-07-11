@@ -1,0 +1,53 @@
+.wpmt_wrap .status
+{
+    display: inline-block;
+    margin-left: 0;
+    padding: 3px 6px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.wpmt_wrap .status.positive {
+    background-color: #32cd32;
+}
+.wpmt_wrap .status.negative {
+    background-color: red;
+}
+#wizard-console
+{
+    font-family: monaco,monospace,courier,'courier new','Bitstream Vera Sans Mono';
+    background: #262626;
+    color: #fff;
+    width: 900px;
+    margin: 20px 0;
+    height: 350px;
+    overflow-y: scroll;
+    border: 1px solid #ccc;
+    padding: 5px 20px;
+    font-size: 13px;
+    line-height: 140%;    
+}
+#wizard-console .time
+{
+    color: #999;
+    display: inline-block;
+    margin-right: 5px;
+}
+#wizard-console em
+{
+    color: #FFF;
+    font-style: normal;
+}
+#wizard-console strong 
+{
+    color: #2ea2cc;
+}
+#wizard-console .msg.green 
+{
+    color: #FFF;
+}
+#wizard-console .msg.red 
+{
+    color: #FFF;
+}
