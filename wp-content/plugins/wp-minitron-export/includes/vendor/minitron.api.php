@@ -1,16 +1,24 @@
 <?php
 
-class mtAPI {
+class WPMT_API {
     
     const DEV_URL = 'http://dev.minitron-apps.si/api/';
     const LIVE_URL = 'https://secure.minitron-apps.si/api/';
     
+    public $is_connected;
+    
     public function __construct($api_user, $api_hash)
     {
-        return $this->mt_api_call('init', array('api_user' => $api_user, 'api_hash' => $api_hash));
+        $api = $this->mt_api_call('init', array('api_user' => $api_user, 'api_hash' => $api_hash));
+        $this->is_connected = $api['data']['ok'];
 	}
     
-    public function mt_api_call($action = "", $params = array())
+    public function is_connected()
+    {
+        return $this->is_connected;
+    }
+    
+    public function mt_api_call($action = "", $params = array(), $type = '')
 	{	
         //api url
     	$api_url = self::DEV_URL;
@@ -26,15 +34,25 @@ class mtAPI {
     	$lnk .= "&mode=json";
     	$lnk = substr($lnk, 1);
     	
-    	//post request params	
+    	//post request params
     	$post_request = "";
-    	if (is_array($params))
-    	{
-            foreach(array_keys($params) as $key)
-    		{
-                $post_request .= "&" . $key . "=" . urlencode($params[$key]);
-            }
-    	}
+        
+        switch ($type)
+        {
+            case 'json':
+                $post_request = json_encode($params);
+            break;
+            default:
+                $post_request = "";
+                if (is_array($params))
+                {
+                    foreach(array_keys($params) as $key)
+                    {
+                        $post_request .= "&" . $key . "=" . urlencode($params[$key]);
+                    }
+                }
+            break;
+        }
 
     	//prevent cache
     	$api_url .= "?" . $lnk . "&f=" . time();
@@ -42,12 +60,17 @@ class mtAPI {
     	$ch = curl_init($api_url); 
     	curl_setopt($ch,CURLOPT_SSL_VERIFYPEER, false);
     	curl_setopt($ch,CURLOPT_POST,true);
-    	curl_setopt($ch,CURLOPT_POSTFIELDS,$post_request);
+    	curl_setopt($ch,CURLOPT_POSTFIELDS, $post_request);
+        if ($type == 'json')
+        {
+            curl_setopt($ch,CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        }
     	curl_setopt($ch,CURLOPT_RETURNTRANSFER, true); 
     	curl_setopt($ch,CURLOPT_TIMEOUT,30);
     	
     	$response = curl_exec($ch);
-    	//echo $response;
+        
+        //echo $response . PHP_EOL;
     	$response_parsed = json_decode($response, true);
     		
     	if (curl_errno($ch) || !$response)
@@ -89,6 +112,18 @@ class mtAPI {
         
         if ($result['data']) return $result['data'];
         
+        return false;
+    }
+    
+    public function set_partners($subscribers)
+    {
+        $result = $this->mt_api_call('setPartners', array('partners' => $subscribers), 'json');
+        
+        if ($result)
+        {
+            echo json_encode($result['data']);
+            die();
+        }
         return false;
     }
 }

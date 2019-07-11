@@ -35,8 +35,6 @@ class WP_Minitron
         add_action('admin_enqueue_scripts', array($plugin_admin, 'enqueue_scripts'));
         add_action('admin_menu', array($plugin_admin, 'admin_menu'));
         add_action('admin_init', array($plugin_admin, 'admin_init'));
-        add_action('widgets_init', array($plugin_admin, 'widgets_init'));
-	    add_filter('plugin_row_meta', array($plugin_admin, 'add_setting_link_meta'), 10, 2 );
 
     }
 
@@ -44,16 +42,16 @@ class WP_Minitron
     {
         $plugin_public = new WPMT_Public();
         add_action('wp_enqueue_scripts', array($plugin_public, 'enqueue_scripts'));
-        add_action('wp_ajax_mailerlite_add_subscriber', array($plugin_public, 'ajax_add_subscriber'));
-        add_action('wp_ajax_nopriv_mailerlite_add_subscriber', array($plugin_public, 'ajax_add_subscriber'));
 
     }
 
-    public static function get_name() {
+    public static function get_name() 
+    {
         return self::$plugin_name;
     }
 
-    public static function get_version() {
+    public static function get_version() 
+    {
         return self::$version;
     }
 

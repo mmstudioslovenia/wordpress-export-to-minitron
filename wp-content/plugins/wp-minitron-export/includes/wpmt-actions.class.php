@@ -10,9 +10,9 @@ class WPMT_Actions
     public function __construct()
     {
         $this->api_key = WPMT_Admin::get_option('api_key');
-        $this->register_groups = WPMT_Admin::get_option('register_groups');
-        //$this->groups_api = (new \MailerLiteApi\MailerLite($this->api_key))->groups();
-        //$this->subscribers_api = (new \MailerLiteApi\MailerLite($this->api_key))->subscribers();
+        $register_groups = WPMT_Admin::get_option('register_groups');
+        $this->api = new WPMT_API(WPMT_Admin::get_option('api_user'), WPMT_Admin::get_option('api_key'));
+        $this->register_group_id = $register_groups[0];
 
         $this->define_hooks();
     }
@@ -20,33 +20,28 @@ class WPMT_Actions
 
     private function define_hooks()
     {
-        add_action('user_register', array($this, 'user_register'));
+        add_action('wp_ajax_batch_update', array($this, 'ajax_batch_update'));
     }
-
-    /*
-     * Add registred users to lists
-    */
-    public function user_register($user_id)
+    
+    public function ajax_batch_update()
     {
-        // Add user after register
-        if (isset($this->register_groups) && !empty($this->register_groups) && isset($this->api_key) && !empty($this->api_key)) {
-            $user_info = get_userdata($user_id);
+        $users = get_users();
+        $subscribers = [];
+        
+        foreach ($users as $user)
+        {
             $subscriber = [
-              'email' => $user_info->user_email,
-              'fields' => [
-                  'name' => ($user_info->first_name) ? $user_info->first_name : $user_info->display_name,
-                  'last_name' => ($user_info->last_name) ? $user_info->last_name : '',
-              ],
+                'email' => $user->user_email,
+                'name' => $user->display_name,
+                'cat_id' => $this->register_group_id,
+                'check_existing_by' => 'email',
             ];
-            foreach ($this->register_groups as $key => $group) {
-                $this->groups_api->addSubscriber($group, $subscriber);
-            }
+            
+            array_push($subscribers, $subscriber);
         }
-
+        
+        $this->api->set_partners($subscribers);
     }
 
 
 }
-
-
-
