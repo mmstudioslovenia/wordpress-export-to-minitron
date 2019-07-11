@@ -157,7 +157,7 @@ class WPMT_Admin
         
         add_settings_field(
             'wpmt_reg_group', // ID
-            __('Partners lists', 'wpmt'), // Title
+            __('Partner group', 'wpmt'), // Title
             array($this, 'register_group_callback'), // Callback
             'wpmt_general_page', // Page
             'wpmt_general' // Section
@@ -195,11 +195,11 @@ class WPMT_Admin
         if (self::get_option('api_user') && self::get_option('api_key')) {
 	        $all_groups = $this->api->get_partners_cats();
 	        if ($all_groups) {
-		        echo '<select name="wpmt_options[register_groups][]" id="register_groups" multiple="multiple" class="wpmt_select2">';
+		        echo '<select name="wpmt_options[register_groups][]" id="register_groups" class="wpmt_select2">';
 		        echo '<option value="" >'.__('Select groups', 'wpmt').'</option>';
 		        foreach ($all_groups as $group) {
                     $selected = (in_array($group['id'], self::get_option('register_groups'))) ? ' selected="selected"' : '';
-			        echo '<option value="'.$group['id'].'" '.$selected.'>'.$group['cat_title'].' ( '.$group->total.' '.__('User', 'wpmt').')</option>';
+			        echo '<option value="'.$group['id'].'" '.$selected.'>'.$group['cat_title'].'</option>';
 		        }
 		        echo '</select>';
 	        }

@@ -17,7 +17,6 @@ class WPMT_Actions
         $this->define_hooks();
     }
 
-
     private function define_hooks()
     {
         add_action('wp_ajax_batch_update', array($this, 'ajax_batch_update'));
