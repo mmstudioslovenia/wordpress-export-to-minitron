@@ -20,6 +20,7 @@ class WP_Minitron
         require_once WPMT_PATH.'includes/wpmt-admin.class.php';
         require_once WPMT_PATH.'includes/wpmt-public.class.php';
         require_once WPMT_PATH.'includes/wpmt-actions.class.php';
+        require_once WPMT_PATH.'includes/wpmt-widget.class.php';
         require_once WPMT_PATH.'includes/vendor/minitron.api.php';
     }
 
@@ -34,6 +35,7 @@ class WP_Minitron
         $plugin_admin = new WPMT_Admin();
         add_action('admin_enqueue_scripts', array($plugin_admin, 'enqueue_scripts'));
         add_action('admin_menu', array($plugin_admin, 'admin_menu'));
+        add_action('widgets_init', array($plugin_admin, 'widgets_init'));
         add_action('admin_init', array($plugin_admin, 'admin_init'));
 
     }
@@ -42,6 +44,8 @@ class WP_Minitron
     {
         $plugin_public = new WPMT_Public();
         add_action('wp_enqueue_scripts', array($plugin_public, 'enqueue_scripts'));
+        add_action('wp_ajax_minitron_add_subscriber', array($plugin_public, 'ajax_add_subscriber'));
+        add_action('wp_ajax_nopriv_minitron_add_subscriber', array($plugin_public, 'ajax_add_subscriber'));
 
     }
 

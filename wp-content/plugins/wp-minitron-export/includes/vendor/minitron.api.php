@@ -119,6 +119,18 @@ class WPMT_API {
         return false;
     }
     
+    public function set_partner($subscriber)
+    {
+        $result = $this->mt_api_call('setPartner', $subscriber);
+        
+        if ($result)
+        {
+            echo json_encode($result['data']);
+            die();
+        }
+        return false;
+    }
+    
     public function set_partners($subscribers)
     {
         $result = $this->mt_api_call('setPartners', array('partners' => $subscribers), 'json');

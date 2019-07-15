@@ -68,6 +68,7 @@ class WPMT_Admin
                             submit_button();
                             
                             $lists = $this->api->get_partners_cats();
+                            update_option('wpmt_cats_list', json_encode($lists));
                             include WPMT_PATH . 'includes/views/lists-overview.php';
                             
                         break;
@@ -231,6 +232,11 @@ class WPMT_Admin
             _e('Please insert your API details first.', 'wpmt');
         }
 
+    }
+    
+    public function widgets_init()
+    {
+        register_widget('WPMT_Widget');
     }
 
     public static function get_option($option_name = 'all')
