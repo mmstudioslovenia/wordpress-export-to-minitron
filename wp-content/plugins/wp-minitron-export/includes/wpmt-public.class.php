@@ -23,6 +23,12 @@ class WPMT_Public
         );
     }
     
+    public function ajax_update_lists()
+    {
+        $lists = $this->api->get_partners_cats();
+        update_option('wpmt_cats_list', json_encode($lists));
+    }
+    
     /*
     *  It's sending POST request to Minitron,
     *  to save subscriber directly to partners
@@ -51,8 +57,6 @@ class WPMT_Public
         ];
         
         $response = $this->api->set_partner($subscriber);
-        
-        print_r($response);
         
         wp_send_json_success($response);
 
