@@ -123,11 +123,8 @@ class WPMT_API {
     {
         $result = $this->mt_api_call('setPartner', $subscriber);
         
-        if ($result)
-        {
-            echo json_encode($result['data']);
-            die();
-        }
+        if ($result) return $result;
+        
         return false;
     }
     

@@ -23,6 +23,10 @@ class WPMT_Public
         );
     }
     
+    /*
+    *  It's sending POST request to Minitron,
+    *  to save subscriber directly to partners
+    */
     public function ajax_add_subscriber()
     {
         $nonce = (isset($_POST['nonce']) && !empty($_POST['nonce'])) ? $_POST['nonce'] : false ;
@@ -31,7 +35,7 @@ class WPMT_Public
         $name = (isset($_POST['name']) && !empty($_POST['name'])) ? strip_tags($_POST['name']) : false ;
         $mobile = (isset($_POST['mobile']) && !empty($_POST['mobile'])) ? strip_tags($_POST['mobile']) : false ;
         if (!wp_verify_nonce($nonce, 'ajax-nonce'))
-            die('Nope!');
+            die('Nope!'); 
 
         if ($email == false) {
             wp_send_json_error(__('Please insert your email address', 'wpmt'));
@@ -41,10 +45,16 @@ class WPMT_Public
             'email' => $email,
             'name' => $name,
             'cat_id' => $groups,
+            'tel1' => $mobile, // optional, if enabled in widget
+            'name' => $name, // optional, if enabled in widget
             'check_existing_by' => 'email'
         ];
-
-        $this->api->set_partner($subscriber);
+        
+        $response = $this->api->set_partner($subscriber);
+        
+        print_r($response);
+        
+        wp_send_json_success($response);
 
     }
 }
