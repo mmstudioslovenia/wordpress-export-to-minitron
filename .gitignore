@@ -15,6 +15,7 @@ wp-content/index.php
 wp-content/plugins/akismet/*
 wp-content/plugins/mailchimp-for-wp/*
 wp-content/plugins/mailchimp-sync/*
+wp-content/plugins/wp-mailerlite-lite/*
 wp-content/plugins/hello.php
 wp-content/plugins/index.php
 !wp-content/plugins/wp-minitron-export/*
